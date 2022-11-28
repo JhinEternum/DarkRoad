@@ -8,7 +8,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - LimitScreen
@@ -18,8 +18,8 @@ TagManager:
   - Parallax4
   - Parallax5
   - Parallax6
-  - 
-  - 
+  - Ground
+  - Enemy
   - 
   - 
   - 
@@ -49,4 +49,13 @@ TagManager:
     locked: 0
   - name: Parallax3
     uniqueID: 1739268113
+    locked: 0
+  - name: Background
+    uniqueID: 1313827925
+    locked: 0
+  - name: PlayerGround
+    uniqueID: 1631325085
+    locked: 0
+  - name: Foreground
+    uniqueID: 2474877567
     locked: 0

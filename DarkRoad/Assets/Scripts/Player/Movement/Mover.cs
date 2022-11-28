@@ -21,11 +21,11 @@ public class Mover : MonoBehaviour
         }
         else if (controls.MovementValue.x != 0)
         {
-            float clampedMovementValue = 1 * controls.MovementValue.x;
+            float clampedMovementValue = controls.MovementValue.x > 0 ? Mathf.Ceil(controls.MovementValue.x) : Mathf.Floor(controls.MovementValue.x);
 
             if (CanMove())
             {
-                GetComponent<AnimationChanger>().ChangeAnimation("Walk");
+                GetComponent<AnimationChanger>().ChangeAnimation("Run");
             }
 
             rb.velocity = new Vector2(clampedMovementValue * speed * externalForces, 0);

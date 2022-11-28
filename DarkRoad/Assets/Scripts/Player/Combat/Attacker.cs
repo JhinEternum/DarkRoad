@@ -11,14 +11,14 @@ public class Attacker : MonoBehaviour
     [SerializeField] private float CdToCancelCombo = 0.75f;
     private float attackCdToCancelCombo;
 
-    void Start()
-    {
-
-    }
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float attackRange;
+    [SerializeField] private LayerMask enemyLayer;
 
     private void OnEnable()
     {
         GetComponent<ControlsReader>().AttackEvent += OnAttack;
+        GetComponent<ControlsReader>().RoundAttackEvent += OnRoundAttack;
     }
 
     void Update()
@@ -30,13 +30,14 @@ public class Attacker : MonoBehaviour
     {
         Animator animator = GetComponent<Animator>();
         PlayerState.currentPlayerState = PlayerState.CurrentPlayerState.ATTACK;
-        float realCd = animator.GetCurrentAnimatorStateInfo(0).length + 0.2f;
+        float realCd = animator.GetCurrentAnimatorStateInfo(0).length + 0.1f;
 
         if (attackIndex == minAttackIndex && !animator.GetCurrentAnimatorStateInfo(0).IsName("Attack3"))
         {
             GetComponent<AnimationChanger>().ChangeAnimation($"Attack{attackIndex}");
             ChangeAttackIndex();
             attackCdToCancelCombo = realCd;
+            Attack();
         }
         else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 &&
         !animator.IsInTransition(0) && animator.GetCurrentAnimatorStateInfo(0).IsName($"Attack{attackIndex - 1}"))
@@ -44,7 +45,30 @@ public class Attacker : MonoBehaviour
             GetComponent<AnimationChanger>().ChangeAnimation($"Attack{attackIndex}");
             ChangeAttackIndex();
             attackCdToCancelCombo = realCd;
+            Attack();
         }
+    }
+
+    private void Attack()
+    {
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
+
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            IDamageable damageable = enemy.GetComponent<IDamageable>();
+
+            if (damageable != null)
+            {
+                damageable.TakeDamage(1);
+            }
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null) return;
+
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 
     private void ChangeAttackIndex()
@@ -72,8 +96,28 @@ public class Attacker : MonoBehaviour
         }
     }
 
+    private void OnRoundAttack()
+    {
+        Animator animator = GetComponent<Animator>();
+        PlayerState.currentPlayerState = PlayerState.CurrentPlayerState.ATTACK;
+        float realCd = animator.GetCurrentAnimatorStateInfo(0).length + 0.1f;
+
+        if (attackIndex == minAttackIndex)
+        {
+            GetComponent<AnimationChanger>().ChangeAnimation($"Attack4");
+            attackCdToCancelCombo = realCd;
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 &&
+        !animator.IsInTransition(0) && animator.GetCurrentAnimatorStateInfo(0).IsName($"Attack{attackIndex - 1}"))
+        {
+            GetComponent<AnimationChanger>().ChangeAnimation($"Attack4");
+            attackCdToCancelCombo = realCd;
+        }
+    }
+
     private void OnDisable()
     {
         GetComponent<ControlsReader>().AttackEvent -= OnAttack;
+        GetComponent<ControlsReader>().RoundAttackEvent -= OnRoundAttack;
     }
 }
